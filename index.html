@@ -158,12 +158,12 @@
             margin-bottom: 4px;
         }
 
-        .config-input {
+        .config-input, .chat-input {
             width: 100%;
             background: #090c10;
             border: 1px solid var(--border-color);
             color: #fff;
-            padding: 8px 12px;
+            padding: 10px 12px;
             border-radius: 6px;
             font-size: 0.85rem;
             margin-top: 8px;
@@ -173,9 +173,10 @@
             background: #1f293d;
             color: var(--accent-blue);
             border: 1px solid var(--border-color);
-            padding: 6px 12px;
+            padding: 8px 14px;
             border-radius: 6px;
-            font-size: 0.78rem;
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
             margin-top: 8px;
             transition: all 0.2s;
@@ -186,6 +187,15 @@
             color: #000;
         }
 
+        .btn-primary {
+            background: var(--accent-blue);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
         .console {
             background-color: #05070a;
             border: 1px solid var(--border-color);
@@ -193,11 +203,11 @@
             padding: 14px;
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-size: 0.8rem;
-            height: 220px;
+            height: 250px;
             overflow-y: auto;
         }
 
-        .log-entry { margin-bottom: 6px; line-height: 1.4; }
+        .log-entry { margin-bottom: 6px; line-height: 1.4; word-break: break-word; }
         .log-time { color: #6b7280; }
         .log-info { color: var(--accent-blue); }
         .log-success { color: var(--accent-green); }
@@ -208,6 +218,7 @@
             display: flex;
             gap: 8px;
             margin-bottom: 10px;
+            flex-wrap: wrap;
         }
     </style>
 </head>
@@ -220,39 +231,51 @@
             <small>AI Architecture & Database Operations Center</small>
         </div>
         <div>
-            <span class="badge">SYSTEM READY</span>
+            <span class="badge" id="system-badge">SYSTEM INITIALIZING</span>
         </div>
     </header>
 
-    <!-- System & Developer Status -->
+    <!-- System Architecture & Config -->
     <div class="grid">
         <div class="card">
             <h2>System Architecture</h2>
             <div class="status-row">
                 <span>Database Engine (SQLite v3)</span>
-                <span><span class="indicator online pulse"></span>ONLINE</span>
+                <span id="db-status-text"><span class="indicator online pulse"></span>ONLINE</span>
             </div>
             <div class="status-row">
                 <span>Database Schema</span>
                 <span>v1.0 (5 Tables)</span>
             </div>
             <div class="status-row">
-                <span>AI Backend API</span>
-                <span id="backend-status-text"><span class="indicator pending pulse" id="backend-indicator"></span>STANDBY</span>
+                <span>AI Backend API (Render)</span>
+                <span id="backend-status-text"><span class="indicator pending pulse" id="backend-indicator"></span>CONNECTING...</span>
             </div>
             <div class="status-row">
-                <span>Frontend Interface</span>
-                <span><span class="indicator pending"></span>PENDING BUILD</span>
+                <span>Gemini AI Engine</span>
+                <span id="gemini-status-text"><span class="indicator pending"></span>STANDBY</span>
             </div>
         </div>
 
         <div class="card">
             <h2>Backend Detector Config</h2>
             <div style="font-size: 0.8rem; color: #9ca3af;">
-                Connect your future AI backend service URL to enable live ping detection:
+                Enter your live Render backend service URL:
             </div>
-            <input type="text" id="backend-url" class="config-input" placeholder="http://localhost:8000 or https://your-backend.onrender.com" value="http://localhost:8000">
-            <button class="btn" onclick="testBackendConnection()">Check Connection Now</button>
+            <input type="text" id="backend-url" class="config-input" placeholder="https://johnny-tec-backend.onrender.com" value="https://johnny-tec-backend.onrender.com">
+            <button class="btn btn-primary" onclick="testBackendConnection()">Ping & Connect Server</button>
+        </div>
+    </div>
+
+    <!-- Live AI Prompt Tester (New Feature!) -->
+    <div class="card" style="margin-bottom: 20px;">
+        <h2>Interactive Gemini AI Tester 💡</h2>
+        <div style="font-size: 0.8rem; color: #9ca3af; margin-bottom: 8px;">
+            Send a message directly to your deployed backend to verify AI response generation & SQLite message logging:
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <input type="text" id="chat-prompt-input" class="chat-input" placeholder="Type a prompt for Johnny Tec AI..." style="flex: 1; margin-top: 0;" onkeydown="if(event.key==='Enter') sendLiveAiPrompt()">
+            <button class="btn btn-primary" style="margin-top: 0;" onclick="sendLiveAiPrompt()">Send Prompt</button>
         </div>
     </div>
 
@@ -262,19 +285,19 @@
         <div class="table-list">
             <div class="table-item">
                 <code>developers (id, name, username, role, created_at)</code>
-                <span style="color: #9ca3af;">Stores core creator profiles and system administrative alias settings.</span>
+                <span style="color: #9ca3af;">Stores core creator profiles and system administrative settings.</span>
             </div>
             <div class="table-item">
                 <code>users (id, name, email, country, created_at)</code>
                 <span style="color: #9ca3af;">User profile registrations connected to your AI experience.</span>
             </div>
             <div class="table-item">
-                <code>memories (id, user_id, memory_type, content, importance, created_at)</code>
-                <span style="color: #9ca3af;">Long-term AI memory storage for context retention.</span>
+                <code>memories (id, user_id, memory_type, content, created_at)</code>
+                <span style="color: #9ca3af;">Long-term AI memory storage injected into Gemini prompts.</span>
             </div>
             <div class="table-item">
-                <code>conversations (id, user_id, user_message, ai_response, created_at)</code>
-                <span style="color: #9ca3af;">Complete user prompt & AI response interaction history.</span>
+                <code>conversations (id, user_id, user_message, ai_response, timestamp)</code>
+                <span style="color: #9ca3af;">Complete user prompt & AI response interaction logs saved in SQLite.</span>
             </div>
             <div class="table-item">
                 <code>lessons (id, user_id, lesson_name, progress, score, created_at)</code>
@@ -283,75 +306,31 @@
         </div>
     </div>
 
-    <!-- Live System & Error Console -->
+    <!-- Live Operations & Console -->
     <div class="card">
-        <h2>Live Operations & Error Console</h2>
+        <h2>Live Operations & System Console</h2>
         <div class="console-actions">
-            <button class="btn" onclick="simulateAiQuery()">Simulate AI Query</button>
-            <button class="btn" onclick="addCustomLog('[SUCCESS] SQLite PRAGMA foreign_keys validated.', 'success')">Test DB Query</button>
+            <button class="btn" onclick="testBackendConnection()">Check Health</button>
+            <button class="btn" onclick="simulateAiQuery()">Simulate Offline Log</button>
             <button class="btn" onclick="clearConsole()">Clear Console</button>
         </div>
         <div class="console" id="console">
-            <div class="log-entry"><span class="log-time">[SYSTEM START]</span> Operations dashboard loaded.</div>
-            <div class="log-entry"><span class="log-success">[SUCCESS]</span> Schema active: developers, users, memories, conversations, lessons.</div>
-            <div class="log-entry"><span class="log-info">[INFO]</span> Database location: database/johnny_tec.db</div>
-            <div class="log-entry"><span class="log-warn">[WAITING]</span> Backend listener standing by for incoming connections...</div>
+            <div class="log-entry"><span class="log-time">[SYSTEM START]</span> Operations dashboard initialized.</div>
+            <div class="log-entry"><span class="log-success">[SUCCESS]</span> Control panel frontend loaded.</div>
         </div>
     </div>
 </div>
 
 <script>
-    function addCustomLog(message, type = 'info') {
-        const consoleEl = document.getElementById('console');
-        const timestamp = new Date().toLocaleTimeString();
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        
-        let colorClass = 'log-info';
-        if (type === 'success') colorClass = 'log-success';
-        if (type === 'warn') colorClass = 'log-warn';
-        if (type === 'error') colorClass = 'log-error';
-
-        entry.innerHTML = `<span class="log-time">[${timestamp}]</span> <span class="${colorClass}">${message}</span>`;
-        consoleEl.appendChild(entry);
-        consoleEl.scrollTop = consoleEl.scrollHeight;
-    }
-
-    function clearConsole() {
-        document.getElementById('console').innerHTML = '';
-        addCustomLog('Console cleared.', 'info');
-    }
-
-    function simulateAiQuery() {
-        addCustomLog('[TEST PROMPT] User: "How is Johnny Tec structured?"', 'info');
-        setTimeout(() => {
-            addCustomLog('[AI RESPONSE] "Johnny Tec is built modularly with SQLite, Python AI Backend, and Web Control Panel."', 'success');
-        }, 600);
-    }
-
-    async function testBackendConnection() {
-        const url = document.getElementById('backend-url').value.trim();
-        const indicator = document.getElementById('backend-indicator');
-        const textEl = document.getElementById('backend-status-text');
-
-        addCustomLog(`[PING] Attempting connection to backend at ${url}...`, 'info');
-
-        try {
-            const response = await fetch(url + '/health', { method: 'GET', mode: 'cors' });
-            if (response.ok) {
-                indicator.className = 'indicator online pulse';
-                textEl.innerHTML = `<span class="indicator online pulse"></span>ONLINE`;
-                addCustomLog(`[CONNECTED] AI Backend is live and responding!`, 'success');
-            } else {
-                throw new Error(`Server returned status ${response.status}`);
-            }
-        } catch (err) {
-            indicator.className = 'indicator offline';
-            textEl.innerHTML = `<span class="indicator offline"></span>OFFLINE`;
-            addCustomLog(`[DETECTOR] Backend offline or non-responsive (${err.message}). Expected while building backend.`, 'warn');
+    // Initialize saved URL or use default
+    document.addEventListener("DOMContentLoaded", () => {
+        const savedUrl = localStorage.getItem("johnny_backend_url");
+        if (savedUrl) {
+            document.getElementById("backend-url").value = savedUrl;
         }
-    }
-<script>
+        testBackendConnection();
+    });
+
     function addCustomLog(message, type = 'info') {
         const consoleEl = document.getElementById('console');
         const timestamp = new Date().toLocaleTimeString();
@@ -377,39 +356,97 @@
         addCustomLog('[TEST PROMPT] User: "How is Johnny Tec structured?"', 'info');
         setTimeout(() => {
             addCustomLog('[AI RESPONSE] "Johnny Tec is built modularly with SQLite, Python AI Backend, and Web Control Panel."', 'success');
-        }, 600);
+        }, 500);
     }
 
-    async function testBackendConnection() {
+    function getCleanUrl() {
         let url = document.getElementById('backend-url').value.trim();
-        // Automatically remove trailing slash if present
         if (url.endsWith('/')) {
             url = url.slice(0, -1);
         }
-        
+        localStorage.setItem("johnny_backend_url", url);
+        return url;
+    }
+
+    async function testBackendConnection() {
+        const url = getCleanUrl();
         const indicator = document.getElementById('backend-indicator');
         const textEl = document.getElementById('backend-status-text');
+        const geminiEl = document.getElementById('gemini-status-text');
+        const badge = document.getElementById('system-badge');
 
         addCustomLog(`[PING] Connecting to backend at ${url}/health ...`, 'info');
 
         try {
             const response = await fetch(url + '/health', { method: 'GET', mode: 'cors' });
             if (response.ok) {
+                const data = await response.json();
+                
                 indicator.className = 'indicator online pulse';
                 textEl.innerHTML = `<span class="indicator online pulse"></span>ONLINE`;
-                addCustomLog(`[CONNECTED] AI Backend is LIVE and responding!`, 'success');
+                
+                if (data.ai_engine_ready) {
+                    geminiEl.innerHTML = `<span class="indicator online"></span>READY`;
+                } else {
+                    geminiEl.innerHTML = `<span class="indicator offline"></span>API KEY MISSING`;
+                }
+
+                badge.innerText = "ALL SYSTEMS ONLINE";
+                badge.style.borderColor = "var(--accent-green)";
+                badge.style.color = "var(--accent-green)";
+                
+                addCustomLog(`[CONNECTED] Backend online! DB Connected: ${data.database_connected}, AI Ready: ${data.ai_engine_ready}`, 'success');
             } else {
-                throw new Error(`Server status ${response.status}`);
+                throw new Error(`HTTP Status ${response.status}`);
             }
         } catch (err) {
             indicator.className = 'indicator offline';
             textEl.innerHTML = `<span class="indicator offline"></span>OFFLINE`;
-            addCustomLog(`[DETECTOR] Waking up server or unreachable (${err.message}). Try again in 15 seconds.`, 'warn');
+            geminiEl.innerHTML = `<span class="indicator offline"></span>UNREACHABLE`;
+            
+            badge.innerText = "SERVER OFFLINE / SLEEPING";
+            badge.style.borderColor = "var(--accent-red)";
+            badge.style.color = "var(--accent-red)";
+
+            addCustomLog(`[DETECTOR] Server sleeping or unreachable (${err.message}). If Render was idle, wait 30s and click again.`, 'warn');
+        }
+    }
+
+    async function sendLiveAiPrompt() {
+        const url = getCleanUrl();
+        const inputEl = document.getElementById('chat-prompt-input');
+        const prompt = inputEl.value.trim();
+
+        if (!prompt) {
+            addCustomLog('[WARN] Please enter a prompt message first.', 'warn');
+            return;
+        }
+
+        addCustomLog(`[USER PROMPT] ${prompt}`, 'info');
+        inputEl.value = '';
+
+        try {
+            addCustomLog('[AI WORKING] Sending prompt to Gemini via Render backend...', 'info');
+            const response = await fetch(url + '/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                mode: 'cors',
+                body: JSON.stringify({ user_id: 1, prompt: prompt })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                addCustomLog(`[AI RESPONSE] ${data.response}`, 'success');
+                addCustomLog(`[DB LOGGED] Saved interaction to database for User ID ${data.user_id}.`, 'success');
+            } else {
+                const errData = await response.json().catch(() => ({ detail: 'Unknown error' }));
+                addCustomLog(`[ERROR] Backend returned error: ${errData.detail}`, 'error');
+            }
+        } catch (err) {
+            addCustomLog(`[ERROR] Could not connect to AI endpoint: ${err.message}`, 'error');
         }
     }
 </script>
-    
+
 </body>
 </html>
-EOF
-    
