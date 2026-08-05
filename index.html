@@ -1,4 +1,4 @@
-cat << 'EOF' > index.html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -352,8 +352,64 @@ cat << 'EOF' > index.html
             addCustomLog(`[DETECTOR] Backend offline or non-responsive (${err.message}). Expected while building backend.`, 'warn');
         }
     }
-</script>
+<script>
+    function addCustomLog(message, type = 'info') {
+        const consoleEl = document.getElementById('console');
+        const timestamp = new Date().toLocaleTimeString();
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        
+        let colorClass = 'log-info';
+        if (type === 'success') colorClass = 'log-success';
+        if (type === 'warn') colorClass = 'log-warn';
+        if (type === 'error') colorClass = 'log-error';
 
+        entry.innerHTML = `<span class="log-time">[${timestamp}]</span> <span class="${colorClass}">${message}</span>`;
+        consoleEl.appendChild(entry);
+        consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function clearConsole() {
+        document.getElementById('console').innerHTML = '';
+        addCustomLog('Console cleared.', 'info');
+    }
+
+    function simulateAiQuery() {
+        addCustomLog('[TEST PROMPT] User: "How is Johnny Tec structured?"', 'info');
+        setTimeout(() => {
+            addCustomLog('[AI RESPONSE] "Johnny Tec is built modularly with SQLite, Python AI Backend, and Web Control Panel."', 'success');
+        }, 600);
+    }
+
+    async function testBackendConnection() {
+        let url = document.getElementById('backend-url').value.trim();
+        // Automatically remove trailing slash if present
+        if (url.endsWith('/')) {
+            url = url.slice(0, -1);
+        }
+        
+        const indicator = document.getElementById('backend-indicator');
+        const textEl = document.getElementById('backend-status-text');
+
+        addCustomLog(`[PING] Connecting to backend at ${url}/health ...`, 'info');
+
+        try {
+            const response = await fetch(url + '/health', { method: 'GET', mode: 'cors' });
+            if (response.ok) {
+                indicator.className = 'indicator online pulse';
+                textEl.innerHTML = `<span class="indicator online pulse"></span>ONLINE`;
+                addCustomLog(`[CONNECTED] AI Backend is LIVE and responding!`, 'success');
+            } else {
+                throw new Error(`Server status ${response.status}`);
+            }
+        } catch (err) {
+            indicator.className = 'indicator offline';
+            textEl.innerHTML = `<span class="indicator offline"></span>OFFLINE`;
+            addCustomLog(`[DETECTOR] Waking up server or unreachable (${err.message}). Try again in 15 seconds.`, 'warn');
+        }
+    }
+</script>
+    
 </body>
 </html>
 EOF
