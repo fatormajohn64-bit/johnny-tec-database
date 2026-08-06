@@ -7,8 +7,11 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS developers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    username TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE,
     role TEXT NOT NULL,
+    bio TEXT,
+    github_url TEXT,
+    primary_stack TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -18,6 +21,15 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE,
     country TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Maps an anonymous browser session (sent from the frontend) to a user
+-- row, so each visitor gets their own history without needing a login.
+CREATE TABLE IF NOT EXISTS sessions (
+    session_id TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS memories (
